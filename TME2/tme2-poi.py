@@ -27,6 +27,7 @@ geo_mat = np.zeros((len(poidata[typepoi]),2))
 for i,(k,v) in enumerate(poidata[typepoi].items()):
     geo_mat[i,:]=v[0]
 
+
 ## Affichage brut des poi
 show_map()
 ## alpha permet de regler la transparence, s la taille
