@@ -7,6 +7,7 @@ Created on Tue Feb 11 11:06:41 2020
 from decisiontree import DecisionTree
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
 # data : tableau (films , features ), id2titles : dictionnaire id -> titre ,
 # fields : id feature -> nom
 [data , id2titles , fields ]= pickle . load ( open ("imdb_extrait.pkl","rb"))
@@ -97,12 +98,44 @@ def erreurs(taux_app,data,prof_max):
 #erreurs(0.5,data,15)
 #erreurs(0.8,data,15)
 
-def validation_croisee(n,data_app):
-    size = data_app.shape[0]//n
-    tab = np.split(data_app,size)
-    print(tab[0].shape)
-    for i in range(len(tab)):
-        out = tab[i]
-        
-    
-validation_croisee(10,data)
+def validation_croisee(n,taux_app,data,prof_max):
+    data_app, _ = partition(taux_app,data)
+    erreurs_moy_app = []
+    borders = np.linspace(0, len(data_app), n + 1, dtype=int)
+
+    for depth in range(1,prof_max):
+        print(depth)
+        erreurs_test = []
+        for i in range(n):
+            data_test = data_app[borders[i]:borders[i+1]]
+            if len(data_app[0:borders[i]]) > 0:
+                data_train = np.concatenate((data_app[0:borders[i]] ,data_app[borders[i+1]:len(data_app)]))
+            else:
+                data_train = data_app[borders[i + 1]:len(data_app)]
+
+            train_x, train_y = x_y(data_train)
+            test_x, test_y = x_y(data_test)
+
+            dt = DecisionTree()
+            dt.max_depth = depth
+            dt.min_samples_split = 2
+            dt.fit(train_x, train_y)
+            erreurs_test.append(1 - dt.score(test_x, test_y))
+        print(erreurs_moy_app)
+        erreurs_moy_app.append((1/n)*np.array(erreurs_test).sum())
+
+    x = [i for i in range(1, prof_max)]
+    fig = plt.figure()
+    plt.plot(x, erreurs_moy_app)
+    plt.xlabel('Erreur moyenne en fonction de la prof avec VC avec taux app de : ' + str(taux_app))
+    plt.legend(['app'], loc='upper left')
+    plt.savefig(str(taux_app) + "erreursVC.png")
+    #plt.show()
+    return
+
+
+
+validation_croisee(10,0.2,data,13)
+validation_croisee(10,0.5,data,13)
+validation_croisee(10,0.8,data,13)
+validation_croisee(10,1,data,13)
