@@ -28,11 +28,17 @@ for i,(k,v) in enumerate(poidata[typepoi].items()):
     geo_mat[i,:]=v[0]
 
 ## Affichage brut des poi
-#show_map()
+show_map()
 ## alpha permet de regler la transparence, s la taille
 plt.scatter(geo_mat[:,1],geo_mat[:,0],alpha=0.8,s=3)
 
 ###################################################
+
+# discretisation pour l'affichage des modeles d'estimation de densite
+steps = 100
+xx,yy = np.meshgrid(np.linspace(xmin,xmax,steps),np.linspace(ymin,ymax,steps))
+grid = np.c_[xx.ravel(),yy.ravel()]
+grid[:, 0], grid[:, 1] = grid[:, 1], grid[:, 0].copy()
 
 def centers_from_grid(grid):
     '''
@@ -80,25 +86,36 @@ class modele_noyau_parzen():
     def __init__(self):
         self.densite = 0
 
-    def fit(self,data,h):
+    def fit(self,data,h,grid):
+        d = data.shape[1]
+        print(len(data))
         d = 2
         densites = []
-        for xi in data:
-            dedans = np.sum(np.sum(np.abs(data - xi)/h,axis=1) <= h/2)
-            densite_xi = dedans / len(data) / h**d
+        for xi in grid:
+            dedans = np.sum(np.sum(np.abs(data - xi)/h,axis=1) <= h/d)
+            # Ici on ne prend pas le (carre car dim = 2 ) "carre unitaire" mais le carre de longueur h
+            # p(x) = k/N*V
+            densite_xi = dedans / ((len(data) * h**d))
             densites.append(densite_xi)
-        print(len(densites))
-        return np.array(densites)
+        print(str(np.sum(np.array(densites) >= 1)))
+        print(densites)
+
+        return np.array(densites)/len(data)
 
     # renvoie la probabilite que le point x,y soit un poi
-    def predict(self,grid,data):
-        pass
+    def predict(self,point,data,h):
+        d= 2
+        dedans = np.sum(np.sum(np.abs(data - point) / h, axis=1) <= h / 2)
+        densite_xi = dedans / len(data) / h**d
+        return densite_xi
+
 
 steps = 100
 parzen = modele_noyau_parzen()
 #il faut faire la grille pour visualiser
-res = parzen.fit(geo_mat,1)
+res = parzen.fit(geo_mat,0.15,grid).reshape(steps,steps)
 plt.figure()
+plt.title("parzen")
 show_map()
 plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
                alpha=0.3,origin = "lower")
@@ -109,29 +126,41 @@ class modele_noyau_gaussien():
     def __init__(self):
         self.densite = 0
 
-    def fit(self,data,h):
-        d = 2
+    def fit(self,data,h,grid):
+        d = data.shape[1]
+        d= 2
         densites = []
-        print(len(data))
-        for xi in data:
+        for xi in grid:
+            x = np.sum((np.abs(data - xi) / h),axis=1)
+            dedans = np.sum( (1/(np.sqrt(2*np.pi))) *np.exp(-0.5*x**2))
             # Suffit de modifier dedans car c'est le noyau donc la façon de selectionner les points dans lhypercube qui change selon le noyau
-            dedans = np.sum((1/2*np.pi)*np.exp(-0.5*(np.sum(np.abs(data - xi)/h,axis=1))**2) <= h/2)
-            densite_xi = dedans / len(data) / h**d
+            densite_xi = dedans / (len(data) * h**d)
             densites.append(densite_xi)
-        return np.array(densites)
+        print(densites)
+        print(str(np.sum(np.array(densites) >= 1)))
+        return np.array(densites)/len(data)
 
     # renvoie la probabilite que le point x,y soit un poi
-    def predict(self,grid,data):
-        pass
+    def predict(self, point, data, h):
+        d = 2
+        dedans = np.sum((1/2*np.pi)*np.exp(-0.5*(np.sum(np.abs(data - xi)/h,axis=1))**2) <= h/2)
+        densite_xi = dedans / (len(data) / h ** d)
+        return densite_xi
 
-parzen = modele_noyau_gaussien()
-res = parzen.fit(geo_mat,1)
+gaussien = modele_noyau_gaussien()
+res = gaussien.fit(geo_mat,0.005,grid).reshape(steps,steps)
+plt.figure()
+plt.title("gaussian")
+show_map()
+plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
+               alpha=0.3,origin = "lower")
+plt.colorbar()
+
+''' 
+Corriger la legende qui semble pas être correcte'''
 ###################################################
 
-# discretisation pour l'affichage des modeles d'estimation de densite
-steps = 100
-xx,yy = np.meshgrid(np.linspace(xmin,xmax,steps),np.linspace(ymin,ymax,steps))
-grid = np.c_[xx.ravel(),yy.ravel()]
+
 
 '''
 # A remplacer par res = monModele.predict(grid).reshape(steps,steps)
@@ -163,3 +192,9 @@ plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
 plt.colorbar()
 '''
 
+''' prédire la note d’un POI en
+fonction de son emplacement. Dans ce dernier contexte de classification supervisée, vous pouvez mettre
+en oeuvre l’estimateur de Nadaraya-Watson et les k-plus proches voisins. utiliser lda pour avoir les hashtags clés
+implementation de gensim
+
+point wise mutual information'''
