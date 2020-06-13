@@ -17,7 +17,7 @@ def mse(datax,datay,w):
 def mse_g(datax,datay,w):
     """ retourne le gradient moyen de l'erreur au moindres carres """
     print((np.dot(datax.T,np.dot(datax , w.T) - datay) / len(datax)).shape)
-    return np.dot(datax.T,np.dot(datax , w.T) - datay) / len(datax)
+    return np.snp.dot(datax.T,np.dot(datax , w.T) - datay) / len(datax)
 
 def hinge(datax,datay,w):
     """ retourn la moyenne de l'erreur hinge """
