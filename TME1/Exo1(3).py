@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 18 14:22:25 2020
 
-@author: Zixuan FENG
-"""
 #Exo1.3
 import decisiontree
 import pickle

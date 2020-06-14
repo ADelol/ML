@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 11 11:06:41 2020
 
-@author: arnaud
-"""
 from decisiontree import DecisionTree
 import pickle
 import numpy as np
@@ -16,14 +12,17 @@ import matplotlib.pyplot as plt
 datax = data [: ,:32]
 datay =np. array ([1 if x [33] >6.5 else -1 for x in data ])
 
+
+    
+#Q1.4
 dt = DecisionTree ()
 dt. max_depth = 2 #on fixe la taille de l’arbre a 5
 dt. min_samples_split = 2 # nombre minimum d’exemples pour spliter un noeud
-#dt. fit(datax , datay )
-#dt. predict ( datax [:5 ,:])
-#print (dt. score (datax , datay ))
+dt. fit(datax , datay )
+dt. predict ( datax [:5 ,:])
+print (dt. score (datax , datay ))
 # dessine l’arbre dans un fichier pdf si pydot est installe .
-#dt. to_pdf ("2test_tree.pdf",fields )
+dt. to_pdf ("2test_tree.pdf",fields )
 # sinon utiliser http :// www. webgraphviz .com/
 #dt. to_dot ( fields )
 #ou dans la console
@@ -67,8 +66,9 @@ def scores_selon_prof(taux_app,data,prof_max):
 scores_selon_prof(0.2,data,15)
 scores_selon_prof(0.5,data,15)
 scores_selon_prof(0.8,data,15)
-  '''                
+ '''            
 def erreurs(taux_app,data,prof_max):
+    
     erreurs_train = []
     erreurs_test = []
     x = [i for i in range(2,prof_max)]
@@ -86,6 +86,7 @@ def erreurs(taux_app,data,prof_max):
         erreurs_test.append(1 - dt.score(test_x , test_y ))
         
     import matplotlib.pyplot as plt
+    plt.figure()
     plt.plot(x,erreurs_train)
     plt.plot(x,erreurs_test)
     plt.ylabel('erreur en fonction de la profondeur, taux app : ' + str(taux_app))
@@ -93,11 +94,11 @@ def erreurs(taux_app,data,prof_max):
     plt.savefig(str(taux_app) + "erreurs.png")
     plt.show()
     
-
-#erreurs(0.2,data,15)
-#erreurs(0.5,data,15)
-#erreurs(0.8,data,15)
-
+'''
+erreurs(0.2,data,15)
+erreurs(0.5,data,15)
+erreurs(0.8,data,15)
+'''
 def validation_croisee(n,taux_app,data,prof_max):
     data_app, _ = partition(taux_app,data)
     erreurs_moy_app = []

@@ -80,6 +80,41 @@ class modele_histo():
         x = math.floor((x - xmin) / distance_x)
         y = math.floor((y - ymin) / distance_y)
         return self.densite[x][y]
+    
+    
+# A remplacer par res = monModele.predict(grid).reshape(steps,steps)
+histo = modele_histo()
+res = histo.make_histo(3,geo_mat,xmin,xmax,ymin,ymax)
+res = np.matrix.transpose(res)
+plt.figure()
+plt.title("Discretisation trop faible")
+show_map()
+plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
+               alpha=0.3,origin = "lower")
+plt.colorbar()
+plt.savefig("Discretisation trop faible")
+
+histo = modele_histo()
+res = histo.make_histo(100,geo_mat,xmin,xmax,ymin,ymax)
+res = np.matrix.transpose(res)
+plt.figure()
+plt.title("Discretisation trop forte")
+show_map()
+plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
+               alpha=0.3,origin = "lower")
+plt.colorbar()
+plt.savefig("Discretisation trop forte")
+
+histo = modele_histo()
+res = histo.make_histo(10,geo_mat,xmin,xmax,ymin,ymax)
+res = np.matrix.transpose(res)
+plt.figure()
+plt.title("Discretisation moyenne")
+show_map()
+plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
+               alpha=0.3,origin = "lower")
+plt.colorbar()
+plt.savefig("Discretisation moyenne")
 
 class modele_noyau_parzen():
 
@@ -120,6 +155,7 @@ show_map()
 plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
                alpha=0.3,origin = "lower")
 plt.colorbar()
+plt.savefig("Parzen")
 
 class modele_noyau_gaussien():
 
@@ -155,46 +191,7 @@ show_map()
 plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
                alpha=0.3,origin = "lower")
 plt.colorbar()
+plt.savefig("Gaussien")
 
 ''' 
 Corriger la legende qui semble pas être correcte'''
-###################################################
-
-
-
-'''
-# A remplacer par res = monModele.predict(grid).reshape(steps,steps)
-histo = modele_histo()
-res = histo.make_histo(3,geo_mat,xmin,xmax,ymin,ymax)
-res = np.matrix.transpose(res)
-plt.figure()
-show_map()
-plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
-               alpha=0.3,origin = "lower")
-plt.colorbar()
-
-histo = modele_histo()
-res = histo.make_histo(3,geo_mat,xmin,xmax,ymin,ymax)
-res = np.matrix.transpose(res)
-plt.figure()
-show_map()
-plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
-               alpha=0.3,origin = "lower")
-plt.colorbar()
-
-histo = modele_histo()
-res = histo.make_histo(100,geo_mat,xmin,xmax,ymin,ymax)
-res = np.matrix.transpose(res)
-plt.figure()
-show_map()
-plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
-               alpha=0.3,origin = "lower")
-plt.colorbar()
-'''
-
-''' prédire la note d’un POI en
-fonction de son emplacement. Dans ce dernier contexte de classification supervisée, vous pouvez mettre
-en oeuvre l’estimateur de Nadaraya-Watson et les k-plus proches voisins. utiliser lda pour avoir les hashtags clés
-implementation de gensim
-
-point wise mutual information'''
