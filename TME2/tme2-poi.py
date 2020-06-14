@@ -102,7 +102,7 @@ class modele_noyau_parzen():
 
         return np.array(densites)/len(data)
 
-    # renvoie la probabilite que le point x,y soit un poi
+    # renvoie la densite au point donne
     def predict(self,point,data,h):
         d= 2
         dedans = np.sum(np.sum(np.abs(data - point) / h, axis=1) <= h / 2)
@@ -140,7 +140,7 @@ class modele_noyau_gaussien():
         print(str(np.sum(np.array(densites) >= 1)))
         return np.array(densites)/len(data)
 
-    # renvoie la probabilite que le point x,y soit un poi
+    # renvoie la densite au point donné
     def predict(self, point, data, h):
         d = 2
         dedans = np.sum((1/2*np.pi)*np.exp(-0.5*(np.sum(np.abs(data - xi)/h,axis=1))**2) <= h/2)

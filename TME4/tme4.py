@@ -1,74 +1,65 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 10 15:29:02 2020
-
-@author: arnau
-"""
-
 import numpy as np
-import codecs
-import re
-
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import svm
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import cross_val_score
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.model_selection import StratifiedKFold
-from nltk.corpus import stopwords
-from sklearn import metrics
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import confusion_matrix
-from sklearn.svm import LinearSVC
-
 import matplotlib.pyplot as plt
 
-import numpy as np
-#from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from matplotlib import cm
+
+def load_usps(filename):
+    with open(filename,"r") as f:
+        f.readline()
+        data =[ [float(x) for x in l.split()] for l in f if len(l.split())>2]
+    tmp = np.array(data)
+    return tmp[:,1:],tmp[:,0].astype(int)
 
 
-def plot_data(data,labels=None):
-    """
-    Affiche des donnees 2D
-    :param data: matrice des donnees 2d
-    :param labels: vecteur des labels (discrets)
-    :return:
-    """
-    cols,marks = ["red", "green", "blue", "orange", "black", "cyan"],[".","+","*","o","x","^"]
-    if labels is None:
-        plt.scatter(data[:,0],data[:,1],marker="x")
-        return
-    for i,l in enumerate(sorted(list(set(labels.flatten())))):
-        plt.scatter(data[labels==l,0],data[labels==l,1],c=cols[i],marker=marks[i])
+def compare_classe(n1,n2,dataX,dataY,typeSVM ='linear'):
+    
+    """Compare deux classes représentant les nombres n1 et n2 en utilisant un SVM de type typeSVM."""
+    
+    X = dataX[np.where(np.in1d(dataY, [n1,n2]))]
+    Y = dataY[np.where(np.in1d(dataY, [n1,n2]))]
+    
+    svm_lineaire = svm.SVC(kernel =typeSVM)
+    svm_lineaire.fit(X,Y)
+    
+    return svm_lineaire
 
-def plot_frontiere(data,f,step=20):
-    """ Trace un graphe de la frontiere de decision de f
-    :param data: donnees
-    :param f: fonction de decision
-    :param step: pas de la grille
-    :return:
+def predict_resultat(n1,n2,testX,testY,model):
+    masque = np.where(np.in1d(testY, [n1,n2]))
+    resultat = model.predict(testX[masque]) == testY[masque]
+    return sum(resultat)/len(masque[0])
+    
+def make_meshgrid(x, y, h=.02):
+    """Create a mesh of points to plot in
+    Parameters
+    ----------
+    x: data to base x-axis meshgrid on
+    y: data to base y-axis meshgrid on
+    h: stepsize for meshgrid, optional
+    Returns
+    -------
+    xx, yy : ndarray
     """
-    grid,x,y=make_grid(data=data,step=step)
-    plt.contourf(x,y,f(grid).reshape(x.shape),colors=('gray','blue'),levels=[-1,0,1])
+    x_min, x_max = x.min() - 1, x.max() + 1
+    y_min, y_max = y.min() - 1, y.max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    return xx, yy
 
-def make_grid(data=None,xmin=-5,xmax=5,ymin=-5,ymax=5,step=20):
-    """ Cree une grille sous forme de matrice 2d de la liste des points
-    :param data: pour calcluler les bornes du graphe
-    :param xmin: si pas data, alors bornes du graphe
-    :param xmax:
-    :param ymin:
-    :param ymax:
-    :param step: pas de la grille
-    :return: une matrice 2d contenant les points de la grille
+
+def plot_contours(ax, clf, xx, yy, **params):
+    """Plot the decision boundaries for a classifier.
+    Parameters
+    ----------
+    ax: matplotlib axes object
+    clf: a classifier
+    xx: meshgrid ndarray
+    yy: meshgrid ndarray
+    params: dictionary of params to pass to contourf, optional
     """
-    if data is not None:
-        xmax, xmin, ymax, ymin = np.max(data[:,0]),  np.min(data[:,0]), np.max(data[:,1]), np.min(data[:,1])
-    x, y =np.meshgrid(np.arange(xmin,xmax,(xmax-xmin)*1./step), np.arange(ymin,ymax,(ymax-ymin)*1./step))
-    grid=np.c_[x.ravel(),y.ravel()]
-    return grid, x, y
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    out = ax.contourf(xx, yy, Z, **params)
+    return out
 
 def gen_arti(centerx=1,centery=1,sigma=0.1,nbex=1000,data_type=0,epsilon=0.02):
     """ Generateur de donnees,
@@ -91,7 +82,7 @@ def gen_arti(centerx=1,centery=1,sigma=0.1,nbex=1000,data_type=0,epsilon=0.02):
         xpos=np.vstack((np.random.multivariate_normal([centerx,centerx],np.diag([sigma,sigma]),nbex//4),np.random.multivariate_normal([-centerx,-centerx],np.diag([sigma,sigma]),nbex//4)))
         xneg=np.vstack((np.random.multivariate_normal([-centerx,centerx],np.diag([sigma,sigma]),nbex//4),np.random.multivariate_normal([centerx,-centerx],np.diag([sigma,sigma]),nbex//4)))
         data=np.vstack((xpos,xneg))
-        y=np.hstack((np.ones(nbex//2),-np.ones(nbex//2)))
+        y=np.hstack((np.ones(nbex/2),-np.ones(nbex//2)))
 
     if data_type==2:
         #echiquier
@@ -107,43 +98,74 @@ def gen_arti(centerx=1,centery=1,sigma=0.1,nbex=1000,data_type=0,epsilon=0.02):
     y=y[idx]
     return data,y
 
-
-
-def load_usps(fn):
-    with open(fn,"r") as f:
-        f.readline()
-        data = [[float(x) for x in l.split()] for l in f if len(l.split())>2]
-    tmp=np.array(data)
-    return tmp[:,1:],tmp[:,0].astype(int)
-
-def show_usps(data):
-    plt.imshow(data.reshape((16,16)),interpolation="nearest",cmap="gray")
-
-def plot_frontiere_proba(data,f,step=20):
-    grid,x,y=make_grid(data=data,step=step)
-    plt.contour(x,y,f(grid).reshape(x.shape),255)
+if __name__ == "__main__":
     
-plot_frontiere_proba(data,lambda x:svm.predict_proba(x)[:,0],step=50)
 
-data = load_usps("USPS_train.txt")
-X_train = np.array(data[0])
-Y_train = np.array(data[1])
-print(X_train)
-#show_usps(X[0])
+    """
+    
+    SUR LES DONNÉES USPS "
+    
+    """    
+    train = load_usps('USPS_train.txt')
+    trainX, trainY = train
+    test = load_usps('USPS_test.txt')
+    testX, testY = test
+    
+    t =compare_classe(4,5,trainX,trainY)
+    print(predict_resultat(4,5,testX,testY,t))
 
-plot_frontiere_proba(X_train[0],lambda x:svm.predict_proba(x)[:,0],step=50)
+        
+    t =compare_classe(4,5,trainX,trainY,'poly')
+    print(predict_resultat(4,5,testX,testY,t))
+    
+        
+    t =compare_classe(4,5,trainX,trainY,'rbf')
+    print(predict_resultat(4,5,testX,testY,t))
+    
+    """"""""""""""""""
+    
+    
+    
+    """
+    
+    SUR LES DONNÉES GÉNÉRÉES ARTIFICIELLEMENT 
+    
+    """
+    X,y=  gen_arti(nbex=1000,data_type=0,epsilon=1)
+    #X,testy =  gen_arti(nbex=1000,data_type=0,epsilon=1)
+    
+    C = 1.0  # SVM regularization parameter
+    models = (svm.SVC(kernel='linear', C=C),
+              svm.LinearSVC(C=C),
+              svm.SVC(kernel='rbf', gamma=0.7, C=C),
+              svm.SVC(kernel='poly', degree=10, C=C))
+    models = (clf.fit(X, y) for clf in models)
+    
+    # title for the plots
+    titles = ('SVC with linear kernel',
+              'LinearSVC (linear kernel)',
+              'SVC with RBF kernel',
+              'SVC with polynomial (degree 3) kernel')
 
-data = load_usps("USPS_test.txt")
-X_test = np.array(data[0])
-Y_test = np.array(data[1])
-print(X_test)
-
-svmLin =svm.SVC(kernel='linear',decision_function_shape='ovo')
-
-a = svmLin.fit(X_train,Y_train)
-print(a)
-dec= svmLin.decision_function([[1]])
-print(dec.shape[1])
-
-
-svmPoly = svm.SVC(kernel='poly')
+   
+    # Set-up 2x2 grid for plotting.
+    fig, sub = plt.subplots(2, 2)
+    plt.subplots_adjust(wspace=0.4, hspace=0.4)
+    
+    X0, X1 = X[:, 0], X[:, 1]
+    xx, yy = make_meshgrid(X0, X1)
+    
+    for clf, title, ax in zip(models, titles, sub.flatten()):
+        plot_contours(ax, clf, xx, yy,
+                      cmap=plt.cm.coolwarm, alpha=0.8)
+        ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
+        ax.set_xlim(xx.min(), xx.max())
+        ax.set_ylim(yy.min(), yy.max())
+        ax.set_xlabel('Sepal length')
+        ax.set_ylabel('Sepal width')
+        ax.set_xticks(())
+        ax.set_yticks(())
+        ax.set_title(title)
+        print("score: ",title, " = ",clf.score(X,y))
+    
+    plt.show()
