@@ -13,7 +13,6 @@ def mse_g(datax,datay,w):
     return -np.mean(np.dot(datax,w.T)-(datay*datax))
 
 
-
 def hinge(datax,datay,w):
     """ retourn la moyenne de l'erreur hinge """
     zeros = np.zeros(datay.shape)
@@ -51,9 +50,9 @@ class Lineaire(object):
         D = datax.shape[1]
         if self.biais:
             D+=1
-            b = np.ones((self.N,D))
-            b[:,:-1] = datax
-            datax = b
+            ajoutBiais = np.ones((self.N,D))
+            ajoutBiais[:,:-1] = datax
+            datax = ajoutBiais
             
         self.w = np.random.random((1,D))
         
@@ -70,9 +69,9 @@ class Lineaire(object):
             taille = len(datax)
             D = datax.shape[1]
             D+=1
-            b = np.ones((taille,D))
-            b[:,:-1] = datax
-            datax = b
+            ajoutBiais = np.ones((taille,D))
+            ajoutBiais[:,:-1] = datax
+            datax = ajoutBiais
             
         return np.dot(datax, self.w.T)
 
@@ -81,9 +80,9 @@ class Lineaire(object):
         D = datax.shape[1]
         if self.biais:
             D+=1
-            b = np.ones((taille,D))
-            b[:,:-1] = datax
-            datax = b
+            ajoutBiais = np.ones((taille,D))
+            ajoutBiais[:,:-1] = datax
+            datax = ajoutBiais
             
         return np.mean((self.predict(datax).T * datay > 0))
 
@@ -117,8 +116,12 @@ if __name__=="__main__":
     testx,testy =  gen_arti(nbex=1000,data_type=0,epsilon=1)
     plt.figure()
     plot_error(trainx,trainy,mse)
+    plt.title("Plot error mse")
+    plt.savefig("Plot error mse")
     plt.figure()
     plot_error(trainx,trainy,hinge)
+    plt.title("Plot error hinge")
+    plt.savefig("Plot error hinge")
 
     perceptron = Lineaire(mse,mse_g,max_iter=1000,eps=0.0001,biais=False)
     perceptron.fit(trainx,trainy)
@@ -134,6 +137,8 @@ if __name__=="__main__":
     plt.figure()
     plot_frontiere(trainx,perceptron.predict,200)
     plot_data(trainx,trainy)
+    plt.title("Frontiere perceptron")
+    plt.savefig("Frontiere perceptron")
 
 
     #Partie 2
@@ -158,24 +163,25 @@ if __name__=="__main__":
     print("6 contre les autres")
     print(perceptron.w)
 
-    print("6 contre les autres : courbes d'erreurs")
+    print("6 contre les autres courbes d'erreurs")
     step = 100
-    iters = range(1, 1001, step)
-    sc_train = np.zeros(len(iters))
-    sc_test = np.zeros(len(iters))
-    test_datay = np.ones(len(ty)) - 2*(ty != 6)
-    ioff = 0
-    perceptron = Lineaire(hinge, hinge_g, step, 0.00001)
-    for iteration in iters:
+    iterations = range(1, 1001, step)
+    scoreTrain = []
+    scoreTest = []
+    test_datay = np.ones(len(testy)) - 2*(testy != 6)
+    perceptron = Lineaire(hinge, hinge_g, step, 0.00001,False)
+    for i in iterations:
         perceptron.fit(trainx, train_datay)
-        sc_train[ioff] = perceptron.score(trainx, train_datay)
-        sc_test[ioff] = perceptron.score(testx, test_datay)
-        ioff+=1
+        scoreTrain.append(perceptron.score(trainx, train_datay))
+        scoreTest.append(perceptron.score(testx, test_datay))
     plt.figure()
-    plt.plot(iters, sc_train)
-    plt.plot(iters, sc_test)
+    plt.plot(iterations, scoreTrain)
+    plt.plot(iterations, scoreTest)
     plt.legend(["Train", "Test"])
+    plt.title("Courbes d'erreur")
+    plt.savefig("Courbes d'erreur")
     plt.show()
+    
     
     # Partie 3
     # melange de 4 gaussiennes
@@ -188,25 +194,9 @@ if __name__=="__main__":
     plt.figure()
     plot_frontiere(trainx,perceptron.predict,200)
     plot_data(trainx,trainy)
-    
-    #Projection 
-    
-    trainx = np.hstack((trainx, np.reshape((trainx[:, 0]*trainx[:, 1]), (np.shape(trainx)[0], 1)))) #Ajout de x1*x2
-    perceptron = Lineaire(hinge, hinge_g, 500, 0.0001)
-    perceptron.fit(trainx, trainy)
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    pos = trainy >= 0
-    neg = trainy < 0
-    ax.scatter(trainx[pos, 0], trainx[pos, 1], trainx[pos, 2], c="g", marker="x")
-    ax.scatter(trainx[neg, 0], trainx[neg, 1], trainx[neg, 2], c="r", marker="o")
-    grid, xx,yy = make_grid(xmax=np.max(trainx[:,0]),  xmin=np.min(trainx[:,0]), ymax=np.max(trainx[:,1]), ymin=np.min(trainx[:,1]), step=10)
-    weights = perceptron.w[0]
-    z = (-weights[0]*xx - weights[1]*yy)*1.0/weights[2]
-    surf = ax.plot_surface(xx, yy, z, rstride=1, cstride=1, linewidth=0, antialiased=False, alpha=0.3)
-    plt.show()
-    print("type 1 avec projection : ")
-    print(perceptron.score(trainx, trainy))
+    plt.title("Perceptron et type 1")
+    plt.savefig("Perceptron et type 1")
+
     
     # echiqieur
     trainx,trainy =  gen_arti(nbex=1000,data_type=2,epsilon=1)
@@ -218,4 +208,5 @@ if __name__=="__main__":
     plt.figure()
     plot_frontiere(trainx,perceptron.predict,200)
     plot_data(trainx,trainy)
-    
+    plt.title("Perceptron et type 2")
+    plt.savefig("Perceptron et type 2")

@@ -193,5 +193,3 @@ plt.imshow(res,extent=[xmin,xmax,ymin,ymax],interpolation='none',\
 plt.colorbar()
 plt.savefig("Gaussien")
 
-''' 
-Corriger la legende qui semble pas être correcte'''

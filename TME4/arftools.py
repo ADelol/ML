@@ -80,3 +80,12 @@ def gen_arti(centerx=1,centery=1,sigma=0.1,nbex=1000,data_type=0,epsilon=0.02):
     data=data[idx,:]
     y=y[idx]
     return data,y
+
+
+
+def load_usps(fn):
+    with open(fn, "r") as f:
+        f.readline()
+        data = [[float(x) for x in l.split()] for l in f if len(l.split()) > 2]
+    tmp = np.array(data)
+    return tmp[:, 1:], tmp[:, 0].astype(int)

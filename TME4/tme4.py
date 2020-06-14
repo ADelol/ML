@@ -13,7 +13,20 @@ def plot_frontiere_proba(data, f, step=20):
 def score(svm, datax, datay):
     return np.mean(svm.predict(datax) == datay)
 
+"""
 
+plt.ion()
+trainx,trainy =  gen_arti(nbex=1000,data_type=0,epsilon=1)
+testx,testy =  gen_arti(nbex=1000,data_type=0,epsilon=1)
+plt.figure()
+perceptron = sklearn.linear_model.Perceptron(max_iter=5 , tol=1e-3)
+perceptron.fit(trainx,trainy)
+print("Erreur : train %f, test %f"% (perceptron.score(trainx,trainy),perceptron.score(testx,testy)))
+plt.figure()
+plt.title("Perceptron sklearn")
+plot_frontiere(trainx,perceptron.predict,200)
+plot_data(trainx,trainy)
+"""
 
 
 """
@@ -43,7 +56,7 @@ plt.title("Noyau lineaire C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 # poly avec paramètres par défaut
@@ -58,16 +71,16 @@ plt.show()
 print("Parametres par defaut : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
-# poly avec C très fort
+# poly avec C très élevé
 svm = sklearn.svm.SVC(probability=True, kernel='poly', C=500, degree=5,gamma='scale')
 svm.fit(datax, datay)
 plt.figure()
-print("Noyau poly C fort")
-plt.title("Noyau poly C fort")
+print("Noyau poly C élevé")
+plt.title("Noyau poly C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 
@@ -83,7 +96,7 @@ plt.show()
 print("Parametres par defaut : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
-# rbf avec C très fort
+# rbf avec C très élevé
 svm = sklearn.svm.SVC(probability=True, kernel='rbf', C=500,gamma='scale')
 svm.fit(datax, datay)
 plt.figure()
@@ -92,7 +105,7 @@ plt.title("Noyau rbf C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 
@@ -130,7 +143,7 @@ plt.title("Noyau lineaire C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 # poly avec paramètres par défaut
@@ -145,16 +158,16 @@ plt.show()
 print("Parametres par defaut : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
-# poly avec C très fort
+# poly avec C très élevé
 svm = sklearn.svm.SVC(probability=True, kernel='poly', C=500,gamma='scale')
 svm.fit(datax, datay)
 plt.figure()
-print("Noyau poly C fort")
-plt.title("Noyau poly C fort")
+print("Noyau poly C élevé")
+plt.title("Noyau poly C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 
@@ -170,7 +183,7 @@ plt.show()
 print("Parametres par defaut : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
-# rbf avec C très fort
+# rbf avec C très élevé
 svm = sklearn.svm.SVC(probability=True, kernel='rbf', C=500,gamma='scale')
 svm.fit(datax, datay)
 plt.figure()
@@ -179,7 +192,7 @@ plt.title("Noyau rbf C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 
@@ -215,7 +228,7 @@ plt.title("Noyau lineaire C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 # poly avec paramètres par défaut
@@ -230,16 +243,16 @@ plt.show()
 print("Parametres par defaut : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
-# poly avec C très fort
+# poly avec C très élevé
 svm = sklearn.svm.SVC(probability=True, kernel='poly', C=500,gamma='scale')
 svm.fit(datax, datay)
 plt.figure()
-print("Noyau poly C fort")
-plt.title("Noyau poly C fort")
+print("Noyau poly C élevé")
+plt.title("Noyau poly C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C élevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 
@@ -264,13 +277,13 @@ plt.title("Noyau rbf C élevé")
 plot_frontiere_proba(datax, lambda x: svm.predict_proba(x)[:, 0], step=50)
 plot_data(datax, datay)
 plt.show()
-print("C fort : ", score(svm, testx, testy))
+print("C elevé : ", score(svm, testx, testy))
 print("Nombre de vecteurs supports : " + str(len(svm.support_vectors_)))
 
 """
-
+"""
 # Grid search
-if True : # Mettre à True pour effectuer un grid search
+if False : # Mettre à True pour effectuer un grid search
     gammas = [0.02, 0.04, 0.06, 0.08, 0.1, 0.12]
     Cs = [500, 1000, 1500, 2000, 2500, 3000, 3500]
     indices = range(len(datay))
@@ -296,47 +309,39 @@ if True : # Mettre à True pour effectuer un grid search
     plot_data(datax, datay)
     plt.show()
     print("Gaussien VC : ", score(svm, testx, testy))
+"""
 
 
-def load_usps(fn):
-    with open(fn, "r") as f:
-        f.readline()
-        data = [[float(x) for x in l.split()] for l in f if len(l.split()) > 2]
-    tmp = np.array(data)
-    return tmp[:, 1:], tmp[:, 0].astype(int)
+
+trainx, trainy = load_usps("USPS_train.txt")
+testx, testy = load_usps("USPS_test.txt")
 
 
-datax, datay = load_usps("USPS_train.txt")
-tx, ty = load_usps("USPS_test.txt")
+classifieurs = [[sklearn.svm.SVC(kernel='linear') for j in range(10)] for i in range(9)]
 
-#Multi classes
-svms = np.ndarray((10, 10)).astype(sklearn.svm.SVC)
 for i in range(9):
     for j in range(i+1, 10):
-        svm = sklearn.svm.SVC(kernel='linear')
-        svms[i, j] = svm
-        indi = datay == i
-        indj = datay == j
+        svm = classifieurs[i][j]
+        indi = trainy == i
+        indj = trainy == j
         ind = np.bitwise_or(indi, indj)
-        svm.fit(datax[ind, :], 2 * (datay[ind] == i) - 1)
+        print(ind)
+        svm.fit(trainx[ind, :], 2 * (trainy[ind] == i) - 1)
 
-predicts = np.zeros((len(ty), 10))
+predictions = np.zeros((len(testy), 10))
 for i in range(9):
     for j in range(i+1, 10):
-        pred = svms[i, j].predict(tx)
-        predicts[:, i] += pred >= 0
-        predicts[:, j] += pred < 0
+        pred = classifieurs[i][j].predict(testx)
+        predictions[:, i] += pred >= 0
+        predictions[:, j] += pred < 0
+print(predictions.shape)
 
-print("Multi classes, One vs one, score : ", np.mean(ty == np.argmax(predicts, axis=1)))
-svms = []
+print("One-vs-one : ", np.mean(testy == np.argmax(predictions, axis=1)))
+
+
+
+classifieurs = [sklearn.svm.SVC(kernel='linear').fit(trainx, 2*(trainy==i)-1) for i in range(10)]
+predicts = np.zeros((len(testy), 10))
 for i in range(10):
-    svm = sklearn.svm.SVC(kernel='linear')
-    svms.append(svm)
-    svm.fit(datax, 2*(datay==i)-1)
-
-predicts = np.zeros((len(ty), 10))
-for i in range(10):
-    predicts[:, i] = svms[i].predict(tx)
-print("Multi classes, One vs all, score : ", np.mean(ty == np.argmax(predicts, axis=1)))
-
-#One vs one est plus rapide et plus précis, mais est un peuplus complexe à mettre en place"""
+    predicts[:, i] = classifieurs[i].predict(testx)
+print("One-versus-all : ", np.mean(testy == np.argmax(predicts, axis=1)))
